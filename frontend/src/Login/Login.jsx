@@ -18,7 +18,7 @@ const LoginModal = ({ closeModal }) => {
       setError('');
       console.log(config.backendUrl)
       console.log("Hello")
-      const response = await axios.post(`http://localhost:4000/api/v1/user/login`, { email, password });
+      const response = await axios.post(`${config.backendUrl}/login`, { email, password });
 
       if (response.status === 200) {
         localStorage.setItem('accessToken', response.data.data.accessToken);
