@@ -1,0 +1,2 @@
+VITE_BACKEND_URL=http://localhost:4000/api/v1/user
+# VITE_BACKEND_URL= https://ceb8-2401-4900-1c0f-620c-8cd7-c08b-3f67-bfaf.ngrok-free.app/api/v1/user
