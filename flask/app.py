@@ -543,8 +543,9 @@ def exercise_stream(exercise_type):
         mimetype='multipart/x-mixed-replace; boundary=frame',
         headers={'Cache-Control': 'no-store, must-revalidate'}
     )
-
+import os
 if __name__ == '__main__':
-    app.run(debug=True, port=8000)
-
+    debug = os.getenv("FLASK_DEBUG", "false").lower() == "true"
+    port = int(os.getenv("PORT", 8000))
+    app.run(debug=debug, host='0.0.0.0', port=port)
 
