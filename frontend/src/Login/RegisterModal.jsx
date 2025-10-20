@@ -79,10 +79,11 @@ const RegisterModal = ({ closeModal }) => {
       console.log(response?.data)
 
       if (response.status === 201) {
-        navigate("/"); // Navigate to the dashboard on success
+        navigate("/login"); // Navigate to the dashboard on success
       
       }
     } catch (error) {
+      console.log(error)
       setError(error.response?.data?.message || "Registration failed.");
     }
   };

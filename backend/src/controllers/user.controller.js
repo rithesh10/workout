@@ -99,7 +99,7 @@ const registerUser = asyncHandler(async (req, res) => {
   //   }
   //   console.log("File deleted successfully.");
   // });
-  return res.status(201).json(new ApiSuccess(200, req.body, "Success"));
+  return res.status(201).json(new ApiSuccess(201, req.body, "Success"));
 });
 // const loginUser = asyncHandler(async (req, res) => {
 //   const { email, password, fullName } = req.body;

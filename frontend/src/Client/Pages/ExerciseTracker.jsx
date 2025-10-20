@@ -1,13 +1,15 @@
-import React, { useState } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import Modal from "react-modal";
 import config from "../../config/config";
 
 const ExerciseTracker = () => {
   const [exerciseType, setExerciseType] = useState("");
-  const [videoStreamUrl, setVideoStreamUrl] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
   const [isRunning, setIsRunning] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const videoRef = useRef(null);
+  const [stream, setStream] = useState(null);
+  const [frameInterval, setFrameInterval] = useState(null);
 
   const routes = {
     push_up: "Push Up",
@@ -22,41 +24,31 @@ const ExerciseTracker = () => {
   };
 
   const startCamera = async () => {
-    try {
-      const response = await fetch(`${config.flaskUrl}/start_camera`, {
-        method: "POST",
-      });
-      const data = await response.json();
+  try {
+    const mediaStream = await navigator.mediaDevices.getUserMedia({ video: true });
+    setStream(mediaStream);
+    videoRef.current.srcObject = mediaStream;
+    videoRef.current.play();
+    setIsRunning(true);
+    setErrorMessage("");
+  } catch (err) {
+    console.error("Camera access error:", err);
+    setErrorMessage("Camera access denied or not available.");
+  }
+};
 
-      if (response.ok) {
-        setIsRunning(true);
-        setErrorMessage("");
-      } else {
-        setErrorMessage(data.error || "Failed to start camera");
-      }
-    } catch (error) {
-      setErrorMessage("Error starting the camera: " + error.message);
+
+  const stopCamera = () => {
+    if (stream) {
+      stream.getTracks().forEach(track => track.stop());
+      setStream(null);
     }
-  };
-
-  const stopCamera = async () => {
-    try {
-      const response = await fetch(`${config.flaskUrl}/stop_camera`, {
-        method: "POST",
-      });
-      const data = await response.json();
-
-      if (response.ok) {
-        setIsRunning(false);
-        setExerciseType("");
-        setVideoStreamUrl("");
-        setErrorMessage("");
-      } else {
-        setErrorMessage(data.error || "Failed to stop camera");
-      }
-    } catch (error) {
-      setErrorMessage("Error stopping the camera: " + error.message);
+    if (frameInterval) {
+      clearInterval(frameInterval);
+      setFrameInterval(null);
     }
+    setIsRunning(false);
+    setExerciseType("");
   };
 
   const resetCounter = async () => {
@@ -76,11 +68,55 @@ const ExerciseTracker = () => {
     }
   };
 
-  const selectExercise = (type) => {
-    setExerciseType(routes[type]);
-    setVideoStreamUrl(`${config.flaskUrl}/${type}`);
-    setIsModalOpen(false);
-  };
+const selectExercise = (type) => {
+  setExerciseType(type); // don't use routes[type] — backend expects 'push_up', not 'Push Up'
+  setIsModalOpen(false);
+
+  // Only start sending frames AFTER exercise is selected
+  if (!frameInterval) {
+    const interval = setInterval(() => {
+      // console.log("⏱️ Sending frame for:", type);
+      captureAndSendFrame(type);
+    }, 1000);
+    setFrameInterval(interval);
+  }
+};
+
+ const captureAndSendFrame = async (exercise) => {
+  if (!videoRef.current || !exercise) return;
+
+  const canvas = document.createElement("canvas");
+  canvas.width = videoRef.current.videoWidth;
+  canvas.height = videoRef.current.videoHeight;
+  const ctx = canvas.getContext("2d");
+  ctx.drawImage(videoRef.current, 0, 0);
+  const base64Image = canvas.toDataURL("image/jpeg");
+
+  try {
+    const res = await fetch(`${config.flaskUrl}/process_frame`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        image: base64Image,
+        exercise: exercise
+      }),
+    });
+
+    const data = await res.json();
+    // alert(data)
+    
+    console.log("📦 Response from backend:", data);
+  } catch (err) {
+    console.error("Error sending frame:", err);
+  }
+};
+
+
+  useEffect(() => {
+    return () => {
+      stopCamera();
+    };
+  }, []);
 
   return (
     <div className="flex flex-col min-h-screen w-screen overflow-x-hidden items-center h-screen bg-black p-4">
@@ -88,11 +124,12 @@ const ExerciseTracker = () => {
       {errorMessage && (
         <p className="text-red-500 text-sm font-semibold">{errorMessage}</p>
       )}
+
       <div className="flex flex-col items-center bg-gray-700 shadow-lg rounded-lg p-6 w-full max-w-md">
         {!isRunning ? (
           <button
             onClick={startCamera}
-            className="text-white px-4 py-2 rounded-md bg-gradient-to-r from-indigo-600 to-purple-700 hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-700"
+            className="text-white px-4 py-2 rounded-md bg-gradient-to-r from-indigo-600 to-purple-700 hover:opacity-90"
           >
             Start Camera
           </button>
@@ -104,17 +141,18 @@ const ExerciseTracker = () => {
             Stop Camera
           </button>
         )}
+
         {isRunning && (
           <>
             <button
               onClick={resetCounter}
-              className="mt-4 bg-yellow-500 text-white px-4 py-2 rounded-md bg-gradient-to-r from-amber-500 to-orange-700 hover:opacity-90"
+              className="mt-4 bg-yellow-500 text-white px-4 py-2 rounded-md hover:opacity-90"
             >
               Reset Counters
             </button>
             <button
               onClick={() => setIsModalOpen(true)}
-              className="mt-4 bg-blue-500 text-white px-4 py-2 rounded-md bg-gradient-to-r from-blue-600 to-blue-800 hover:opacity-90"
+              className="mt-4 bg-blue-500 text-white px-4 py-2 rounded-md hover:opacity-90"
             >
               Select Exercise
             </button>
@@ -125,19 +163,19 @@ const ExerciseTracker = () => {
       {isRunning && exerciseType && (
         <div className="mt-6 bg-gray-700 shadow-lg rounded-lg p-4 w-full max-w-lg">
           <h2 className="text-lg font-semibold text-white mb-2">
-            Current Exercise: {exerciseType}
-          </h2>
-          <div className="border rounded-lg overflow-hidden">
-            <img
-              src={videoStreamUrl}
-              alt="Exercise Stream"
-              className="w-full h-auto"
-            />
-          </div>
+          Current Exercise: {routes[exerciseType]}
+        </h2>
+
         </div>
       )}
+      <video
+        ref={videoRef}
+        className="w-full rounded-lg border"
+        autoPlay
+        muted
+        playsInline
+      />
 
-      {/* Modal for selecting exercise */}
       <Modal
         isOpen={isModalOpen}
         onRequestClose={() => setIsModalOpen(false)}
