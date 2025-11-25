@@ -7,8 +7,8 @@ import MainLayout from "./components/Layout/MainLayout";
 
 // Public Pages
 import LandingPage from "./Login/LandingPage";
-import LoginModal from "./Login/Login";
-import RegisterModal from "./Login/RegisterModal";
+import Login from "./Login/Login";
+import Register from "./Login/Register";
 import ForgotPassword from "./Login/ForgotPassword";
 import Join from "./Client/Pages/join";
 
@@ -33,17 +33,19 @@ import AdminPortal from "./Admin/components/AdminPortal";
 
 // Components
 import Footer from "./components/Footer";
+import ScrollToTop from "./components/ScrollToTop";
 
 const App = () => {
   return (
     <ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">
       <BrowserRouter>
+        <ScrollToTop />
         <div className="app-container flex flex-col min-h-screen bg-background text-foreground transition-colors duration-300">
           <Routes>
             {/* Public Routes */}
             <Route path="/" element={<LandingPage />} />
-            <Route path="/login" element={<LoginModal />} />
-            <Route path="/register" element={<RegisterModal />} />
+            <Route path="/login" element={<Login />} />
+            <Route path="/register" element={<Register />} />
             <Route path="/forget-password" element={<ForgotPassword />} />
             <Route path="/dash" element={<Join />} />
             <Route path="/home" element={<Home />} /> {/* Assuming Home is public or landing-like? If not, move to protected */}

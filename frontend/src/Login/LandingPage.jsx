@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { X, Menu } from 'lucide-react';
-import LoginModal from './Login.jsx';
-import RegisterModal from './RegisterModal.jsx';
+import { useNavigate } from 'react-router-dom';
 import { ThemeToggle } from '../components/ThemeToggle';
 import { Button } from '../components/Button';
 
@@ -10,18 +9,11 @@ const url = import.meta.env.VITE_BACKEND_URL;
 const LandingPage = () => {
   console.log(import.meta.env.VITE_BACKEND_URL);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [showLogin, setShowLogin] = useState(false);
-  const [showRegister, setShowRegister] = useState(false);
+  const navigate = useNavigate();
 
   const toggleMenu = () => setIsMenuOpen(!isMenuOpen);
-  const toggleLogin = () => {
-    setShowLogin(!showLogin);
-    setShowRegister(false);
-  };
-  const toggleRegister = () => {
-    setShowRegister(!showRegister);
-    setShowLogin(false);
-  };
+  const handleLogin = () => navigate('/login');
+  const handleRegister = () => navigate('/register');
 
   return (
     <div className="min-h-screen w-screen overflow-x-hidden bg-background text-foreground transition-colors duration-300">
@@ -39,13 +31,13 @@ const LandingPage = () => {
               </a>
               <ThemeToggle />
               <Button
-                onClick={toggleLogin}
+                onClick={handleLogin}
                 variant="ghost"
               >
                 Login
               </Button>
               <Button
-                onClick={toggleRegister}
+                onClick={handleRegister}
                 className="bg-gradient-to-r from-indigo-600 to-purple-700 hover:opacity-90 transition-all transform hover:scale-105"
               >
                 Register
@@ -69,14 +61,14 @@ const LandingPage = () => {
               </a>
               <div className="p-2 space-y-2">
                 <Button
-                  onClick={toggleLogin}
+                  onClick={handleLogin}
                   variant="outline"
                   className="w-full justify-center"
                 >
                   Login
                 </Button>
                 <Button
-                  onClick={toggleRegister}
+                  onClick={handleRegister}
                   className="w-full justify-center bg-gradient-to-r from-indigo-600 to-purple-700"
                 >
                   Register
@@ -124,7 +116,7 @@ const LandingPage = () => {
             </p>
             <div className="flex justify-center items-center mt-6 mt-5 sm:mt-8 sm:flex sm:justify-center">
               <Button
-                onClick={toggleRegister}
+                onClick={handleRegister}
                 size="lg"
                 className="bg-gradient-to-r from-indigo-600 to-purple-700 hover:opacity-90 transition-all transform hover:scale-105"
               >
@@ -163,8 +155,7 @@ const LandingPage = () => {
       </section>
 
       {/* Modals */}
-      {showLogin && <LoginModal closeModal={() => setShowLogin(false)} />}
-      {showRegister && <RegisterModal closeModal={() => setShowRegister(false)} />}
+
     </div>
   );
 };
