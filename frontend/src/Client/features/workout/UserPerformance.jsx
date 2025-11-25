@@ -93,7 +93,7 @@ const UserPerformance = () => {
   );
 
   return (
-    <div className="min-h-screen w-screen bg-black flex flex-col">
+    <div className="w-full flex flex-col">
       {/* Header with gradient background */}
       <header className="w-full bg-gradient-to-r from-gray-900 via-black to-gray-900 border-b border-gray-800">
         <div className="max-w-7xl mx-auto px-6 py-12">

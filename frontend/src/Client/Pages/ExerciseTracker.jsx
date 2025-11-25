@@ -1,6 +1,8 @@
 import React, { useState, useRef, useEffect } from "react";
 import Modal from "react-modal";
 import config from "../../config/config";
+import BackButton from "../../components/BackButton";
+import { Button } from "../../components/Button";
 
 const ExerciseTracker = () => {
   const [exerciseType, setExerciseType] = useState("");
@@ -119,50 +121,53 @@ const selectExercise = (type) => {
   }, []);
 
   return (
-    <div className="flex flex-col min-h-screen w-screen overflow-x-hidden items-center h-screen bg-black p-4">
-      <h1 className="text-4xl font-bold text-white mb-4">Exercise Tracker</h1>
+    <div className="flex flex-col w-full items-center bg-background text-foreground p-4 transition-colors duration-300">
+      <div className="w-full max-w-4xl mb-4 self-start">
+        <BackButton />
+      </div>
+      <h1 className="text-4xl font-bold text-foreground mb-4">Exercise Tracker</h1>
       {errorMessage && (
-        <p className="text-red-500 text-sm font-semibold">{errorMessage}</p>
+        <p className="text-destructive text-sm font-semibold">{errorMessage}</p>
       )}
 
-      <div className="flex flex-col items-center bg-gray-700 shadow-lg rounded-lg p-6 w-full max-w-md">
+      <div className="flex flex-col items-center bg-card border border-border shadow-lg rounded-lg p-6 w-full max-w-md">
         {!isRunning ? (
-          <button
+          <Button
             onClick={startCamera}
-            className="text-white px-4 py-2 rounded-md bg-gradient-to-r from-indigo-600 to-purple-700 hover:opacity-90"
+            className="bg-gradient-to-r from-indigo-600 to-purple-700 hover:opacity-90"
           >
             Start Camera
-          </button>
+          </Button>
         ) : (
-          <button
+          <Button
             onClick={stopCamera}
-            className="text-white px-4 py-2 rounded-md bg-gradient-to-r from-red-700 to-red-900 hover:opacity-90"
+            variant="destructive"
           >
             Stop Camera
-          </button>
+          </Button>
         )}
 
         {isRunning && (
-          <>
-            <button
+          <div className="flex gap-4 mt-4">
+            <Button
               onClick={resetCounter}
-              className="mt-4 bg-yellow-500 text-white px-4 py-2 rounded-md hover:opacity-90"
+              className="bg-yellow-500 hover:bg-yellow-600 text-white"
             >
               Reset Counters
-            </button>
-            <button
+            </Button>
+            <Button
               onClick={() => setIsModalOpen(true)}
-              className="mt-4 bg-blue-500 text-white px-4 py-2 rounded-md hover:opacity-90"
+              className="bg-blue-500 hover:bg-blue-600 text-white"
             >
               Select Exercise
-            </button>
-          </>
+            </Button>
+          </div>
         )}
       </div>
 
       {isRunning && exerciseType && (
-        <div className="mt-6 bg-gray-700 shadow-lg rounded-lg p-4 w-full max-w-lg">
-          <h2 className="text-lg font-semibold text-white mb-2">
+        <div className="mt-6 bg-card border border-border shadow-lg rounded-lg p-4 w-full max-w-lg">
+          <h2 className="text-lg font-semibold text-foreground mb-2">
           Current Exercise: {routes[exerciseType]}
         </h2>
 
@@ -170,7 +175,7 @@ const selectExercise = (type) => {
       )}
       <video
         ref={videoRef}
-        className="w-full rounded-lg border"
+        className="w-full rounded-lg border border-border mt-6 max-w-4xl"
         autoPlay
         muted
         playsInline
@@ -179,27 +184,29 @@ const selectExercise = (type) => {
       <Modal
         isOpen={isModalOpen}
         onRequestClose={() => setIsModalOpen(false)}
-        className="bg-gray-800 rounded-lg p-4 max-w-md mx-auto mt-20"
-        overlayClassName="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center"
+        className="bg-card border border-border rounded-lg p-4 max-w-md mx-auto mt-20 outline-none"
+        overlayClassName="fixed inset-0 bg-background/80 backdrop-blur-sm flex justify-center items-center z-50"
       >
-        <h2 className="text-xl font-bold text-white mb-4">Select Exercise</h2>
-        <div className="grid grid-cols-1 gap-2">
+        <h2 className="text-xl font-bold text-foreground mb-4">Select Exercise</h2>
+        <div className="grid grid-cols-1 gap-2 max-h-[60vh] overflow-y-auto">
           {Object.entries(routes).map(([key, value]) => (
-            <button
+            <Button
               key={key}
               onClick={() => selectExercise(key)}
-              className="text-white px-4 py-2 rounded-md bg-gradient-to-r from-green-600 to-green-800 hover:opacity-90"
+              variant="outline"
+              className="justify-start"
             >
               {value}
-            </button>
+            </Button>
           ))}
         </div>
-        <button
+        <Button
           onClick={() => setIsModalOpen(false)}
-          className="mt-4 text-white px-4 py-2 rounded-md bg-gradient-to-r from-red-600 to-red-800 hover:opacity-90"
+          variant="destructive"
+          className="mt-4 w-full"
         >
           Close
-        </button>
+        </Button>
       </Modal>
     </div>
   );

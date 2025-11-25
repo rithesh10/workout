@@ -9,6 +9,7 @@ import {
   AlertCircle,
 } from 'lucide-react';
 import { FaYoutube } from 'react-icons/fa6';
+import BackButton from '../../../components/BackButton';
 
 const ExerciseDetail = () => {
   const location = useLocation();
@@ -38,15 +39,11 @@ const ExerciseDetail = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 w-screen py-8 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-gray-50 w-full py-8 px-4 sm:px-6 lg:px-8">
       {/* Back Button */}
-      <button
-        onClick={() => navigate(-1)}
-        className="flex items-center bg-gray-900 text-white px-4 py-2 rounded transition-colors mb-6"
-      >
-        <ArrowLeft className="w-5 h-5 mr-2" />
-        Back to exercises
-      </button>
+      <div className="mb-6">
+        <BackButton />
+      </div>
 
       <div className="max-w-7xl mx-auto">
         {/* Main Content */}
