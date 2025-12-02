@@ -60,7 +60,7 @@ const App = () => {
               <Route path="/exerciseTracker" element={<ExerciseTracker />} />
               
               {/* Workout Features */}
-              <Route path="/generateWorout" element={<WorkoutPlan />} />
+              <Route path="/generateWorkout" element={<WorkoutPlan />} />
               <Route path="/getWorkoutPlan" element={<WorkoutPage />} />
               <Route path="/getExercise" element={<ExerciseDetail />} />
               <Route path="/performance" element={<PerformanceModal />} />

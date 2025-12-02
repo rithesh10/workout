@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import { Search, Filter, MoreVertical, Dumbbell, Utensils, Activity } from "lucide-react";
 import UserWorkout from "./UserWorkout";
 import UserDiet from "./UserDiet";
 import config from "../../config/config";
@@ -12,10 +13,10 @@ const UserManagement = () => {
   const [error, setError] = useState(null);
   const [workoutModalVisible, setWorkoutModalVisible] = useState(false);
   const [dietModalVisible, setDietModalVisible] = useState(false);
-  const [performanceModalVisible, setPerformanceModalVisible] = useState(false); // New state
+  const [performanceModalVisible, setPerformanceModalVisible] = useState(false);
   const [selectedWorkout, setSelectedWorkout] = useState(null);
   const [selectedDiet, setSelectedDiet] = useState(null);
-  const [selectedPerformance, setSelectedPerformance] = useState(null); // New state
+  const [selectedPerformance, setSelectedPerformance] = useState(null);
   const [selectedUser, setSelectedUser] = useState(null);
   const [fetchError, setFetchError] = useState(null);
   const navigate = useNavigate();
@@ -33,7 +34,6 @@ const UserManagement = () => {
             gender: user.gender,
           }))
         );
-        // console.log(users);
       }
       setLoading(false);
     } catch (err) {
@@ -45,13 +45,11 @@ const UserManagement = () => {
   const fetchWorkouts = async (userId) => {
     try {
       setFetchError(null);
-      const response = await axios.get(
-        `${config.backendUrl}/get-workout/${userId}`
-      );
+      const response = await axios.get(`${config.backendUrl}/get-workout/${userId}`);
       if (response.data && response.data.data) {
         setSelectedWorkout(response.data.data);
       } else {
-        setSelectedWorkout(null); // No workout data found
+        setSelectedWorkout(null);
       }
     } catch (err) {
       setFetchError(err.message || "Failed to fetch workout plans.");
@@ -62,13 +60,11 @@ const UserManagement = () => {
   const fetchDiet = async (userId) => {
     try {
       setFetchError(null);
-      const response = await axios.get(
-        `${config.backendUrl}/get-diet/${userId}`
-      );
+      const response = await axios.get(`${config.backendUrl}/get-diet/${userId}`);
       if (response.data && response.data.data) {
         setSelectedDiet(response.data.data);
       } else {
-        setSelectedDiet(null); // No diet data found
+        setSelectedDiet(null);
       }
     } catch (err) {
       setFetchError(err.message || "Failed to fetch diet plans.");
@@ -79,13 +75,11 @@ const UserManagement = () => {
   const fetchPerformance = async (userId) => {
     try {
       setFetchError(null);
-      const response = await axios.get(
-        `${config.backendUrl}/performace/${userId}`
-      );
+      const response = await axios.get(`${config.backendUrl}/performace/${userId}`);
       if (response.data && response.data.data) {
         setSelectedPerformance(response.data.data);
       } else {
-        setSelectedPerformance(null); // No performance data found
+        setSelectedPerformance(null);
       }
     } catch (err) {
       setFetchError(err.message || "Failed to fetch user performance.");
@@ -99,7 +93,6 @@ const UserManagement = () => {
     await fetchPerformance(user.id);
   };
 
-  // Close performance modal
   const closePerformanceModal = () => {
     setPerformanceModalVisible(false);
     setSelectedPerformance(null);
@@ -133,95 +126,99 @@ const UserManagement = () => {
 
   if (loading) {
     return (
-      <div className="flex justify-center items-center h-screen text-lg text-gray-600">
-        Loading...
+      <div className="flex h-[calc(100vh-4rem)] items-center justify-center">
+        <div className="h-8 w-8 animate-spin rounded-full border-4 border-blue-600 border-t-transparent"></div>
       </div>
     );
   }
 
   if (error) {
     return (
-      <div className="flex justify-center items-center h-screen text-red-500">
+      <div className="flex h-[calc(100vh-4rem)] items-center justify-center text-red-500">
         {error}
       </div>
     );
   }
 
   return (
-    <div className=" w-screen overflow-x-hidden container mx-auto p-4 sm:p-6">
-      <h1 className="text-2xl sm:text-4xl font-bold text-center mb-4 sm:mb-6 text-blue-800">
-        User Management
-      </h1>
-      <div className="overflow-x-auto">
-        <table className="w-full table-auto bg-white shadow-lg rounded-lg border">
-          <thead>
-            <tr className="bg-blue-100 text-blue-800 uppercase text-xs sm:text-sm leading-normal">
-              <th className="py-2 sm:py-3 px-2 sm:px-6 text-left hidden sm:table-cell">
-                Full Name
-              </th>
-              <th className="py-2 sm:py-3 px-2 sm:px-6 text-left hidden md:table-cell">
-                Email
-              </th>
-              <th className="py-2 sm:py-3 px-2 sm:px-6 text-left hidden lg:table-cell">
-                Phone
-              </th>
-              <th className="py-2 sm:py-3 px-2 sm:px-6 text-left hidden lg:table-cell">
-                Gender
-              </th>
-              <th className="py-2 sm:py-3 px-2 sm:px-6 text-center">Actions</th>
-            </tr>
-          </thead>
-          <tbody className="text-gray-700 text-xs sm:text-sm font-medium">
-            {users.map((user) => (
-              <tr
-                key={user.id}
-                className="border-b border-gray-200 hover:bg-blue-50 transition duration-150"
-              >
-                <td className="py-2 sm:py-3 px-2 sm:px-6 text-left">
-                  <div className="flex items-center">
-                    <div className="sm:hidden mr-2">
-                      <strong>{user.fullName}</strong>
-                    </div>
-                    <div className="hidden sm:block whitespace-nowrap">
+    <div className="space-y-6">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        <h1 className="text-2xl font-bold text-slate-900">User Management</h1>
+        <div className="flex gap-3">
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={20} />
+            <input 
+              type="text" 
+              placeholder="Search users..." 
+              className="h-10 rounded-lg border border-slate-200 pl-10 pr-4 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+            />
+          </div>
+          <button className="flex items-center gap-2 rounded-lg border border-slate-200 bg-white px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50">
+            <Filter size={16} />
+            Filter
+          </button>
+        </div>
+      </div>
+
+      <div className="rounded-xl bg-white shadow-sm ring-1 ring-slate-900/5 overflow-hidden">
+        <div className="overflow-x-auto">
+          <table className="w-full text-left text-sm">
+            <thead className="bg-slate-50 text-slate-500">
+              <tr>
+                <th className="px-6 py-3 font-medium">Full Name</th>
+                <th className="px-6 py-3 font-medium">Email</th>
+                <th className="px-6 py-3 font-medium">Phone</th>
+                <th className="px-6 py-3 font-medium">Gender</th>
+                <th className="px-6 py-3 font-medium text-center">Actions</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-slate-100">
+              {users.map((user) => (
+                <tr key={user.id} className="hover:bg-slate-50/50 transition-colors">
+                  <td className="px-6 py-4 font-medium text-slate-900">
+                    <div className="flex items-center gap-3">
+                      <div className="flex h-8 w-8 items-center justify-center rounded-full bg-blue-100 text-xs font-bold text-blue-600">
+                        {user.fullName.charAt(0).toUpperCase()}
+                      </div>
                       {user.fullName}
                     </div>
-                  </div>
-                </td>
-                <td className="py-2 sm:py-3 px-2 sm:px-6 text-left hidden md:table-cell">
-                  {user.email}
-                </td>
-                <td className="py-2 sm:py-3 px-2 sm:px-6 text-left hidden lg:table-cell">
-                  {user.phone}
-                </td>
-                <td className="py-2 sm:py-3 px-2 sm:px-6 text-left hidden lg:table-cell">
-                  {user.gender}
-                </td>
-                <td className="py-2 sm:py-3 px-2 sm:px-6 text-center">
-                  <div className="flex flex-col sm:flex-row justify-center space-y-2 sm:space-y-0 sm:space-x-2">
-                    <button
-                      onClick={() => handleViewWorkoutPlans(user)}
-                      className="bg-indigo-500 text-white px-3 py-1 sm:px-4 sm:py-2 text-xs sm:text-sm rounded hover:bg-indigo-600 transition"
-                    >
-                      Workout Plan
-                    </button>
-                    <button
-                      onClick={() => handleViewDietPlans(user)}
-                      className="bg-emerald-500 text-white px-3 py-1 sm:px-4 sm:py-2 text-xs sm:text-sm rounded hover:bg-emerald-600 transition"
-                    >
-                      Diet Plan
-                    </button>
-                    <button
-                      onClick={() => handleViewPerformance(user)}
-                      className="bg-amber-500 text-white px-3 py-1 sm:px-4 sm:py-2 text-xs sm:text-sm rounded hover:bg-amber-600 transition"
-                    >
-                      Performance
-                    </button>
-                  </div>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+                  </td>
+                  <td className="px-6 py-4 text-slate-600">{user.email}</td>
+                  <td className="px-6 py-4 text-slate-600">{user.phone}</td>
+                  <td className="px-6 py-4 text-slate-600">{user.gender}</td>
+                  <td className="px-6 py-4">
+                    <div className="flex justify-center gap-2">
+                      <button
+                        onClick={() => handleViewWorkoutPlans(user)}
+                        className="flex items-center gap-1 rounded-md bg-indigo-50 px-3 py-1.5 text-xs font-medium text-indigo-700 hover:bg-indigo-100 transition-colors"
+                        title="Workout Plan"
+                      >
+                        <Dumbbell size={14} />
+                        <span className="hidden sm:inline">Workout</span>
+                      </button>
+                      <button
+                        onClick={() => handleViewDietPlans(user)}
+                        className="flex items-center gap-1 rounded-md bg-emerald-50 px-3 py-1.5 text-xs font-medium text-emerald-700 hover:bg-emerald-100 transition-colors"
+                        title="Diet Plan"
+                      >
+                        <Utensils size={14} />
+                        <span className="hidden sm:inline">Diet</span>
+                      </button>
+                      <button
+                        onClick={() => handleViewPerformance(user)}
+                        className="flex items-center gap-1 rounded-md bg-amber-50 px-3 py-1.5 text-xs font-medium text-amber-700 hover:bg-amber-100 transition-colors"
+                        title="Performance"
+                      >
+                        <Activity size={14} />
+                        <span className="hidden sm:inline">Stats</span>
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       </div>
 
       {workoutModalVisible && (
@@ -240,8 +237,6 @@ const UserManagement = () => {
           onClose={closeDietModal}
         />
       )}
-
-      {/* New Performance Modal */}
       {performanceModalVisible && (
         <UserPerformance
           selectedPerformance={selectedPerformance}
@@ -255,3 +250,4 @@ const UserManagement = () => {
 };
 
 export default UserManagement;
+

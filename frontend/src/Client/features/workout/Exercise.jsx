@@ -80,7 +80,7 @@ const ExerciseDetail = () => {
             <div className="space-y-8">
               {/* Steps */}
               <div>
-                <h2 className="text-xl font-bold mb-4">How to Perform</h2>
+                <h2 className="text-xl text-gray-900 font-bold mb-4">How to Perform</h2>
                 <p className="text-gray-700">{exercise.performing || 'No instructions available.'}</p>
               </div>
 

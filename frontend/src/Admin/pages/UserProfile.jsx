@@ -21,7 +21,6 @@ const UserProfile = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [users, setUsers] = useState([]);
   const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
-  //edit mode
   const [isEditMode, setIsEditMode] = useState(false);
   const [formData, setFormData] = useState({});
 
@@ -45,74 +44,61 @@ const UserProfile = () => {
       setLoading(false);
     }
   };
-  //handleInputClick
+
   const handleInputClick = (e) => {
     const { name, value } = e.target;
     setFormData({ ...formData, [name]: value });
   };
 
-  // handleSave
   const handleSave = async(e) => {
     e.preventDefault();
     try {
-      console.log("id", formData);
       const response = await axios.post(
         `${config.backendUrl}/update`,
         formData,
         { withCredentials: true }
       );
-      console.log(response.data);
-      alert("user updated")
-      if (response.data ) {
+      if (response.data) {
         setUsers((prevUsers) =>
           prevUsers.map((user) =>
             user.id === formData.id ? { ...user, ...formData } : user
           )
         );
-        setIsEditMode(false); // Exit edit mod
-        setSelectedUser(formData)
+        setIsEditMode(false);
+        setSelectedUser(formData);
+        alert("User updated successfully");
       } else {
         alert("Failed to update user.");
       }
     } catch (err) {
       console.log(err);
-      alert("error occured");
+      alert("Error occurred while updating");
     }
   };
-  const handleDeleteSubmit=async()=>{
-    try{
-      const response=await axios.post(`${config.backendUrl}/del`,formData);
-      if(response.data){
-        alert("deleted");
+
+  const handleDeleteSubmit = async () => {
+    if (!window.confirm("Are you sure you want to delete this user?")) return;
+    try {
+      const response = await axios.post(`${config.backendUrl}/del`, formData);
+      if (response.data) {
         setUsers((prevUsers) => prevUsers.filter((user) => user.id !== formData.id));
-
+        setIsModalOpen(false);
+        alert("User deleted successfully");
       }
-
-    }catch(err){
+    } catch (err) {
       console.log(err);
-      alert("failed deletion");
+      alert("Failed to delete user");
     }
-  }
-
-  // Handle responsive design
+  };
 
   useEffect(() => {
     const handleResize = () => {
       setIsMobile(window.innerWidth <= 768);
     };
-
     window.addEventListener("resize", handleResize);
     fetchUsers();
-
-    // Cleanup event listener
     return () => window.removeEventListener("resize", handleResize);
   }, []);
-
-  const quotes = [
-    `"Fitness is not about being better than someone else; it's about being better than you used to be."`,
-    `"Success is walking from failure to failure with no loss of enthusiasm."`,
-    `"Your body can stand almost anything. It's your mind that you have to convince."`,
-  ];
 
   const filteredUsers = users.filter(
     (user) =>
@@ -128,232 +114,194 @@ const UserProfile = () => {
 
   if (loading) {
     return (
-      <div className="flex justify-center items-center min-h-screen bg-gradient-to-br from-blue-100 to-blue-200 px-4">
-        <div className="animate-pulse text-base sm:text-2xl font-semibold text-blue-600 text-center">
-          Loading Users...
-        </div>
+      <div className="flex h-[calc(100vh-4rem)] items-center justify-center">
+        <div className="h-8 w-8 animate-spin rounded-full border-4 border-blue-600 border-t-transparent"></div>
       </div>
     );
   }
 
   if (error) {
     return (
-      <div className="flex justify-center w-screen overflow-x-hidden items-center  bg-red-50 text-red-600 px-4">
-        <div className="bg-white p-4 sm:p-8 rounded-xl shadow-lg text-center max-w-md w-full">
-          <h2 className="text-xl sm:text-2xl font-bold mb-4">
-            Oops! Something went wrong
-          </h2>
-          <p className="text-base sm:text-lg">{error}</p>
-        </div>
+      <div className="flex h-[calc(100vh-4rem)] items-center justify-center text-red-500">
+        {error}
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen w-screen overflow-x-hidden bg-gradient-to-br from-blue-50 to-blue-100 p-2 sm:p-6">
-      <div className="container mx-auto bg-white rounded-2xl shadow-2xl p-2 sm:p-6">
-        {/* Search Bar */}
-        <div className="mb-4 sm:mb-6 relative">
-          <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-            <Search className="text-gray-400" size={isMobile ? 16 : 20} />
-          </div>
+    <div className="space-y-6">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        <h1 className="text-2xl font-bold text-slate-900">User Directory</h1>
+        <div className="relative w-full sm:w-72">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={20} />
           <input
             type="text"
-            placeholder="Search users by name or email"
-            className="w-full pl-8 sm:pl-10 pr-2 sm:pr-4 py-2 sm:py-3 text-sm sm:text-base border-2 border-blue-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-300 ease-in-out"
+            placeholder="Search users..."
+            className="h-10 w-full rounded-lg border border-slate-200 pl-10 pr-4 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
           />
         </div>
+      </div>
 
-        {/* User List or Quote */}
-        {filteredUsers.length > 0 ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2 sm:gap-4 lg:gap-6">
-            {filteredUsers.map((user) => (
-              <div
-                key={user.id}
-                className="bg-white border-2 border-blue-100 rounded-2xl p-3 sm:p-4 hover:shadow-xl hover:border-blue-300 transition-all duration-300 transform hover:-translate-y-2 cursor-pointer group"
-                onClick={() => openUserModal(user)}
-              >
-                <div className="flex items-center">
-                  <div className="w-10 h-10 sm:w-12 sm:h-12 bg-blue-100 rounded-full flex items-center justify-center mr-2 sm:mr-4">
-                    <User className="text-blue-600" size={isMobile ? 18 : 24} />
-                  </div>
-                  <div>
-                    <h3 className="text-base sm:text-lg font-semibold text-gray-800 group-hover:text-blue-600 transition truncate max-w-[200px]">
-                      {user.fullName}
-                    </h3>
-                    {/* <p className="text-xs sm:text-sm text-gray-500 truncate max-w-[200px]">{user.email}</p> */}
-                  </div>
+      {filteredUsers.length > 0 ? (
+        <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+          {filteredUsers.map((user) => (
+            <div
+              key={user.id}
+              onClick={() => openUserModal(user)}
+              className="group cursor-pointer rounded-xl bg-white p-6 shadow-sm ring-1 ring-slate-900/5 transition-all hover:-translate-y-1 hover:shadow-md"
+            >
+              <div className="flex items-center gap-4">
+                <div className="flex h-12 w-12 items-center justify-center rounded-full bg-blue-50 text-blue-600 group-hover:bg-blue-600 group-hover:text-white transition-colors">
+                  <User size={24} />
+                </div>
+                <div className="overflow-hidden">
+                  <h3 className="font-semibold text-slate-900 truncate">{user.fullName}</h3>
+                  <p className="text-sm text-slate-500 truncate">{user.email}</p>
                 </div>
               </div>
-            ))}
-          </div>
-        ) : (
-          <div className="text-center p-4 sm:p-10 bg-blue-50 rounded-2xl">
-            <blockquote className="italic text-base sm:text-2xl text-gray-700 font-light">
-              {quotes[Math.floor(Math.random() * quotes.length)]}
-            </blockquote>
-          </div>
-        )}
+            </div>
+          ))}
+        </div>
+      ) : (
+        <div className="flex h-64 items-center justify-center rounded-xl bg-slate-50 border-2 border-dashed border-slate-200">
+          <p className="text-slate-500">No users found matching your search.</p>
+        </div>
+      )}
 
-        {/* User Details Modal */}
-        {isModalOpen && selectedUser && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-2 sm:p-6">
-            <div className="bg-white rounded-2xl shadow-2xl w-full max-w-xs sm:max-w-sm md:max-w-md p-4 sm:p-8 relative transform transition-all">
-              <button
-                onClick={() => {
-                  setIsModalOpen(false);
-                  setIsEditMode(false);
-                }}
-                className="absolute top-2 right-2 sm:top-4 sm:right-4 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-full p-1 sm:p-2 transition"
-              >
-                ✕
-              </button>
+      {/* User Details Modal */}
+      {isModalOpen && selectedUser && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4 backdrop-blur-sm">
+          <div className="relative w-full max-w-md rounded-2xl bg-white p-6 shadow-xl">
+            <button
+              onClick={() => {
+                setIsModalOpen(false);
+                setIsEditMode(false);
+              }}
+              className="absolute right-4 top-4 rounded-full p-1 text-slate-400 hover:bg-slate-100 hover:text-slate-600"
+            >
+              <Trash2 className="hidden" /> {/* Hidden trash icon? Original had X */}
+              <span className="text-xl font-bold">&times;</span>
+            </button>
 
-              <div className="text-center mb-4 sm:mb-6">
-                <div className="w-16 h-16 sm:w-24 sm:h-24 mx-auto bg-blue-100 rounded-full flex items-center justify-center mb-2 sm:mb-4">
-                  <User className="text-blue-600" size={isMobile ? 32 : 48} />
-                </div>
-                <h2 className="text-lg sm:text-2xl font-bold text-gray-800">
-                  {selectedUser.fullName}
-                </h2>
-                <p className="text-sm sm:text-base text-gray-500">
-                  {selectedUser.email}
-                </p>
+            <div className="mb-6 text-center">
+              <div className="mx-auto mb-4 flex h-20 w-20 items-center justify-center rounded-full bg-blue-100 text-blue-600">
+                <User size={40} />
               </div>
-              {/* Form */}
-              <h2 className="text-lg sm:text-2xl font-bold text-gray-800">
+              <h2 className="text-xl font-bold text-slate-900">
                 {isEditMode ? (
                   <input
                     type="text"
                     name="fullName"
                     value={formData.fullName}
                     onChange={handleInputClick}
-                    className="border-2 border-gray-300 rounded px-2 py-1 w-full"
+                    className="w-full rounded border border-slate-300 px-2 py-1 text-center"
                   />
                 ) : (
-                  selectedUser.name
+                  selectedUser.fullName
                 )}
               </h2>
-              <div className="space-y-2 sm:space-y-4">
-                <div className="flex items-center">
-                  <Mail
-                    className="mr-2 sm:mr-3 text-blue-600"
-                    size={isMobile ? 16 : 20}
-                  />
-                  <p className="text-sm sm:text-base">
-                    <strong>Email:</strong>
-                    {isEditMode ? (
-                      <input
-                        type="text"
-                        name="email"
-                        value={formData.email}
-                        onChange={handleInputClick}
-                        className="border-2 border-gray-300 rounded px-2 py-1 w-full"
-                      />
-                    ) : (
-                      selectedUser.email
-                    )}
-                    ;
-                  </p>
-                </div>
-                <div className="flex items-center">
-                  <Phone
-                    className="mr-2 sm:mr-3 text-blue-600"
-                    size={isMobile ? 16 : 20}
-                  />
-                  <p className="text-sm sm:text-base">
-                    <strong>Mobile No:</strong>{" "}
-                    {isEditMode ? (
-                      <input
-                        type="text"
-                        name="phone"
-                        value={formData.phone}
-                        onChange={handleInputClick}
-                        className="border-2 border-gray-300 rounded px-2 py-1 w-full"
-                      />
-                    ) : (
-                      selectedUser.phone
-                    )}
-                    ;
-                  </p>
-                </div>
-                <div className="flex items-center">
-                  {selectedUser.gender === "Male" ? (
-                    <UserX
-                      className="mr-2 sm:mr-3 text-blue-600"
-                      size={isMobile ? 16 : 20}
+              <p className="text-slate-500">{selectedUser.email}</p>
+            </div>
+
+            <div className="space-y-4">
+              <div className="flex items-center gap-3 rounded-lg bg-slate-50 p-3">
+                <Mail className="text-slate-400" size={20} />
+                <div className="flex-1">
+                  <p className="text-xs font-medium text-slate-500">Email</p>
+                  {isEditMode ? (
+                    <input
+                      type="text"
+                      name="email"
+                      value={formData.email}
+                      onChange={handleInputClick}
+                      className="w-full rounded border border-slate-300 px-2 py-1 text-sm"
                     />
                   ) : (
-                    <UserX
-                      className="mr-2 sm:mr-3 text-pink-600"
-                      size={isMobile ? 16 : 20}
-                    />
+                    <p className="text-sm text-slate-900">{selectedUser.email}</p>
                   )}
-                  <p className="text-sm sm:text-base">
-                    <strong>Gender:</strong>{" "}
-                    {isEditMode ? (
-                      <input
-                        type="text"
-                        name="gender"
-                        value={formData.gender}
-                        onChange={handleInputClick}
-                        className="border-2 border-gray-300 rounded px-2 py-1 w-full"
-                      />
-                    ) : (
-                      selectedUser.gender
-                    )}
-                    ;
-                  </p>
                 </div>
               </div>
 
-              <div className="flex justify-center space-x-2 sm:space-x-4 mt-4 sm:mt-6">
-                {isEditMode ? (
-                  <>
-                    <button
-                      className="bg-green-500 text-white px-3 sm:px-6 py-1 sm:py-2 text-sm sm:text-base rounded-lg hover:bg-green-600 transition"
-                      onClick={handleSave}
-                    >
-                      save
-                    </button>
-                    <button
-                      className="bg-gray-500 text-white px-3 sm:px-6 py-1 sm:py-2 text-sm sm:text-base rounded-lg hover:bg-gray-600 transition"
-                      onClick={() => setIsEditMode(false)}
-                    >
-                      cancel
-                    </button>
-                  </>
-                ) : (
-                  <>
-                    <button
-                      className="bg-blue-500 text-white px-3 sm:px-6 py-1 sm:py-2 text-sm sm:text-base rounded-lg hover:bg-blue-600 transition flex items-center"
-                      onClick={() => setIsEditMode(true)}
-                    >
-                      <Edit
-                        className="mr-1 sm:mr-2"
-                        size={isMobile ? 12 : 16}
-                      />{" "}
-                      Edit
-                    </button>
-                    <button className="bg-red-500 text-white px-3 sm:px-6 py-1 sm:py-2 text-sm sm:text-base rounded-lg hover:bg-red-600 transition flex items-center" onClick={handleDeleteSubmit}>
-                    
-                      <Trash2
-                        className="mr-1 sm:mr-2"
-                        size={isMobile ? 12 : 16}
-                      />{" "}
-                      Delete
-                    </button>
-                  </>
-                )}
+              <div className="flex items-center gap-3 rounded-lg bg-slate-50 p-3">
+                <Phone className="text-slate-400" size={20} />
+                <div className="flex-1">
+                  <p className="text-xs font-medium text-slate-500">Phone</p>
+                  {isEditMode ? (
+                    <input
+                      type="text"
+                      name="phone"
+                      value={formData.phone}
+                      onChange={handleInputClick}
+                      className="w-full rounded border border-slate-300 px-2 py-1 text-sm"
+                    />
+                  ) : (
+                    <p className="text-sm text-slate-900">{selectedUser.phone}</p>
+                  )}
+                </div>
+              </div>
+
+              <div className="flex items-center gap-3 rounded-lg bg-slate-50 p-3">
+                <UserX className="text-slate-400" size={20} />
+                <div className="flex-1">
+                  <p className="text-xs font-medium text-slate-500">Gender</p>
+                  {isEditMode ? (
+                    <input
+                      type="text"
+                      name="gender"
+                      value={formData.gender}
+                      onChange={handleInputClick}
+                      className="w-full rounded border border-slate-300 px-2 py-1 text-sm"
+                    />
+                  ) : (
+                    <p className="text-sm text-slate-900">{selectedUser.gender}</p>
+                  )}
+                </div>
               </div>
             </div>
+
+            <div className="mt-8 flex gap-3">
+              {isEditMode ? (
+                <>
+                  <button
+                    onClick={handleSave}
+                    className="flex-1 rounded-lg bg-green-600 py-2.5 text-sm font-medium text-white hover:bg-green-700"
+                  >
+                    Save Changes
+                  </button>
+                  <button
+                    onClick={() => setIsEditMode(false)}
+                    className="flex-1 rounded-lg bg-slate-100 py-2.5 text-sm font-medium text-slate-600 hover:bg-slate-200"
+                  >
+                    Cancel
+                  </button>
+                </>
+              ) : (
+                <>
+                  <button
+                    onClick={() => setIsEditMode(true)}
+                    className="flex-1 flex items-center justify-center gap-2 rounded-lg bg-blue-600 py-2.5 text-sm font-medium text-white hover:bg-blue-700"
+                  >
+                    <Edit size={16} />
+                    Edit Profile
+                  </button>
+                  <button
+                    onClick={handleDeleteSubmit}
+                    className="flex-1 flex items-center justify-center gap-2 rounded-lg border border-red-200 bg-white py-2.5 text-sm font-medium text-red-600 hover:bg-red-50"
+                  >
+                    <Trash2 size={16} />
+                    Delete
+                  </button>
+                </>
+              )}
+            </div>
           </div>
-        )}
-      </div>
+        </div>
+      )}
     </div>
   );
 };
 
 export default UserProfile;
+

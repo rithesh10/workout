@@ -19,7 +19,7 @@ const TopNavigation = () => {
 
   const navItems = [
     { path: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
-    { path: '/generateWorout', label: 'Workout Plan', icon: Dumbbell },
+    { path: '/getWorkoutPlan', label: 'Workout Plan', icon: Dumbbell },
     { path: '/dietplan', label: 'Diet Plan', icon: Utensils },
     { path: '/exerciseTracker', label: 'Exercise Tracker', icon: Activity },
     { path: '/profile', label: 'Profile', icon: User },
