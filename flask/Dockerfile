@@ -3,17 +3,18 @@ FROM python:3.10-slim
 # Set working directory
 WORKDIR /app
 
-# Copy requirements.txt first (for caching)
+# Copy requirements first (for caching)
 COPY requirements.txt .
 
 # Install dependencies
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Copy the rest of the code
+# Copy project files
 COPY . .
 
-# Expose port 8000
-EXPOSE 8000
+# Render sets PORT at runtime (default to 10000 for local container runs)
+ENV PORT=10000
+EXPOSE 10000
 
-# Run the Flask app
-CMD ["python", "app.py"]
+# Start app with gunicorn on Render-assigned port
+CMD ["sh", "-c", "gunicorn --bind 0.0.0.0:${PORT} app:app"]
