@@ -1,4 +1,4 @@
-FROM python:3.10-slim
+﻿FROM python:3.11-slim
 
 # Set working directory
 WORKDIR /app
@@ -18,3 +18,4 @@ EXPOSE 10000
 
 # Start app with gunicorn on Render-assigned port
 CMD ["sh", "-c", "gunicorn --bind 0.0.0.0:${PORT} app:app"]
+
